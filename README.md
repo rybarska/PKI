@@ -4,46 +4,41 @@
 
 ⚠️ **Important notice** 
 This is a short academic exercise for the course "Software Security" at USTP St Pölten.
-This repository contains **only the results of the exercise**, not the exercise description itself.  
-The original task specification is **not published** due to explicit non-distribution requirements.
+This repository contains **only the implementation results** of an academic exercise.  
+The original task description, slides, and internal course materials are **not published** and are intentionally omitted.
 
 ---
 
 ## Overview
 
-This repository contains a **minimal Public Key Infrastructure (PKI) prototype** developed for educational purposes in the context of a graduate-level course on **Software Security** and **Secure Software Lifecycle practices**.
+This repository contains a **minimal Public Key Infrastructure (PKI) prototype** developed for educational purposes in the context of a graduate-level course on **Software Security**.
 
-The implementation was intentionally created with the assistance of **AI-based code generation**, and subsequently **reviewed and evaluated from a software security perspective**.
+The PKI was intentionally implemented using **AI-assisted code generation** and then reviewed from a **software security and source code analysis perspective**. The focus is on understanding the *certificate lifecycle* and identifying security-relevant design and implementation weaknesses.
 
-The goal of this work is not to provide a production-ready PKI, but to:
-- Understand the certificate lifecycle end-to-end
-- Practice secure software review techniques
-- Identify weaknesses introduced by AI-generated code
-- Reflect on security implications early in the software lifecycle
+This is **not** a production-ready PKI.
 
 ---
 
-## Scope of This Repository
+## Scope
 
-This repository includes:
+Included in this repository:
 
-- Shell scripts for a **very limited PKI workflow**
-- Inline documentation explaining each step
-- Artifacts required to:
-  - Generate cryptographic keys
-  - Create certificates and CSRs
-  - Issue and verify certificates
+- Shell scripts implementing a basic PKI workflow
+- A `Makefile` to orchestrate the lifecycle steps
+- Inline comments explaining each cryptographic and operational step
+- Generated certificates and keys stored locally
 
-This repository **does not include**:
-- The original exercise description
-- Slides, grading criteria, or internal course materials
-- The full written report or presentation
+Explicitly **not included**:
+
+- The original exercise statement
+- Course slides or grading criteria
+- The written report or presentation material
 
 ---
 
-## Implemented PKI Features
+## Implemented Functionality
 
-The prototype supports the following operations:
+The prototype supports the following PKI operations:
 
 1. **Root CA creation**
    - Generation of a private key
@@ -57,25 +52,22 @@ The prototype supports the following operations:
    - Signing the server CSR using the root CA private key
 
 4. **Certificate verification**
-   - Validation of the issued server certificate against the root CA
+   - Verification of the issued server certificate against the root CA
 
-5. **Script-based workflow**
-   - All steps are implemented as shell scripts
-   - Each script contains inline comments explaining:
-     - What is executed
-     - Why it is required
-     - Which security assumptions are made
+5. **Automated workflow**
+   - A `Makefile` is provided to run the above steps in a reproducible manner
 
 ---
 
 ## Repository Structure
 
 ```text
-.
-├── create_ca.sh        # Generates root CA key and self-signed certificate
-├── create_csr.sh       # Generates server key and CSR
-├── create_cert.sh      # Issues server certificate using the CA
-├── verify_cert.sh      # Verifies the issued certificate
-├── ca/                 # CA key and certificate (local, ignored if applicable)
-├── server/             # Server keys and certificates
-└── README.md
+pki/
+├── Makefile            # Orchestrates PKI lifecycle steps
+├── create_ca.sh        # Root CA key and self-signed certificate generation
+├── create_csr.sh       # Server key and CSR creation
+├── create_cert.sh      # Server certificate issuance by the CA
+├── verify_cert.sh      # Certificate verification
+└── certs/              # Generated keys, CSRs, and certificates
+
+Run `make` to execute the full workflow, and `make clean` to remove generated artifacts.
