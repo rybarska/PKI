@@ -1,0 +1,124 @@
+rules:
+  #
+  # 1. Unencrypted private keys written to disk (shell scripts)
+  #
+  - id: pki-unencrypted-private-key
+    languages: [sh]
+    message: >
+      Private key appears to be written to disk without encryption.
+      Ensure private keys are protected with a passphrase or stored in a secure HSM.
+    severity: WARNING
+    patterns:
+      - pattern-either:
+          - pattern: openssl genrsa -out $KEY
+          - pattern: openssl genpkey -algorithm RSA -out $KEY
+      - metavariable-regex:
+          metavariable: $KEY
+          regex: ".*\\.key$"
+
+  #
+  # 2. Weak RSA key size
+  #
+  - id: pki-weak-rsa-key-size
+    languages: [sh]
+    message: >
+      RSA key size below recommended minimum detected.
+      Use at least 3072 bits for long-term security.
+    severity: ERROR
+    pattern: openssl genrsa -out $KEY $SIZE
+    metavariable-comparison:
+      metavariable: $SIZE
+      comparison: $SIZE < 3072
+
+  #
+  # 3. Self-signed certificates used outside explicit test context
+  #
+  - id: pki-self-signed-cert
+    languages: [sh]
+    message: >
+      Self-signed certificate generation detected.
+      Ensure this is not used in production environments.
+    severity: INFO
+    pattern: openssl req -x509
+
+  #
+  # 4. Private keys committed or copied into repositories
+  #
+  - id: pki-private-key-copy
+    languages: [sh]
+    message: >
+      Private key appears to be copied or moved.
+      Verify that sensitive key material is not exposed or committed.
+    severity: WARNING
+    patterns:
+      - pattern-either:
+          - pattern: cp $KEY $DEST
+          - pattern: mv $KEY $DEST
+      - metavariable-regex:
+          metavariable: $KEY
+          regex: ".*\\.key$"
+
+  #
+  # 5. Missing file permission hardening on private keys
+  #
+  - id: pki-missing-key-permissions
+    languages: [sh]
+    message: >
+      Private key created without restrictive file permissions.
+      Use chmod 600 or stricter immediately after creation.
+    severity: WARNING
+    patterns:
+      - pattern-either:
+          - pattern: openssl genrsa -out $KEY
+          - pattern: openssl genpkey -out $KEY
+    pattern-not:
+      pattern: chmod 600 $KEY
+
+  #
+  # 6. Destructive clean targets in Makefiles (generic text scanning)
+  #
+  - id: pki-destructive-clean
+    languages: [generic]
+    message: >
+      Makefile clean target removes files that may include PKI material.
+      Ensure CA keys or production certificates are not deleted.
+    severity: INFO
+    paths:
+      include:
+        - Makefile
+        - '**/Makefile'
+    patterns:
+      - pattern: rm -rf
+      - pattern-either:
+          - pattern: '*.key'
+          - pattern: '*.pem'
+          - pattern: '*.crt'
+          - pattern: '*.csr'
+          - pattern: '/tmp'
+
+  #
+  # 7. Hardcoded certificate validity periods that are excessively long
+  #
+  - id: pki-long-cert-validity
+    languages: [sh]
+    message: >
+      Certificate validity period appears excessively long.
+      Long-lived certificates increase compromise risk.
+    severity: WARNING
+    pattern: openssl req -x509 -days $DAYS
+    metavariable-comparison:
+      metavariable: $DAYS
+      comparison: $DAYS > 825
+
+  #
+  # 8. Use of deprecated hashing algorithms in certificates
+  #
+  - id: pki-weak-hash-algorithm
+    languages: [sh]
+    message: >
+      Deprecated or weak hash algorithm detected.
+      Avoid SHA1 and MD5 for any PKI operation.
+    severity: ERROR
+    pattern-either:
+      - pattern: -sha1
+      - pattern: -md5
