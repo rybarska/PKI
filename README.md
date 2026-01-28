@@ -3,7 +3,6 @@
 # Minimal PKI Implementation (Educational Prototype)
 
 ⚠️ **Important notice** 
-This is a short academic exercise for the course "Software Security" at USTP St Pölten.
 This repository contains **only the implementation results** of an academic exercise.  
 The original task description, slides, and internal course materials are **not published** and are intentionally omitted.
 
@@ -11,7 +10,7 @@ The original task description, slides, and internal course materials are **not p
 
 ## Overview
 
-This repository contains a **minimal Public Key Infrastructure (PKI) prototype** developed for educational purposes in the context of a graduate-level course on **Software Security**.
+This repository contains a **minimal Public Key Infrastructure (PKI) prototype** developed for educational purposes in the context of a graduate-level course on **Software Security** at USTP St Pölten.
 
 The PKI was intentionally implemented using **AI-assisted code generation** and then reviewed from a **software security and source code analysis perspective**. The focus is on understanding the *certificate lifecycle* and identifying security-relevant design and implementation weaknesses.
 
