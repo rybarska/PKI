@@ -21,11 +21,14 @@ The server certificate was inspected using the following command:
 
 ```bash
 openssl x509 -in certs/server.crt -text -noout
+```
+
 The certificate chain was verified using:
 
-bash
-Copy code
+```bash
 openssl verify -CAfile certs/ca.crt certs/server.crt
+```
+
 Results of Certificate Inspection
 Cryptographic Algorithms
 Signature Algorithm: ECDSA with SHA-256
@@ -65,9 +68,9 @@ No unexpected or misconfigured extensions were observed for this minimal PKI.
 Certificate Chain Verification
 The certificate chain verification produced the following result:
 
-bash
-Copy code
+```bash
 certs/server.crt: OK
+```
 This confirms that the server certificate was correctly signed by the trusted
 root CA and that the certificate chain is valid.
 
