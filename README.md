@@ -69,5 +69,6 @@ pki/
 ├── create_cert.sh      # Server certificate issuance by the CA
 ├── verify_cert.sh      # Certificate verification
 └── certs/              # Generated keys, CSRs, and certificates
+```
 
 Run `make` to execute the full workflow, and `make clean` to remove generated artifacts.
