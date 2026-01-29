@@ -22,31 +22,28 @@ and AI-performed source code review in a security context.
 Security Analysis of Generated PKI Implementation
 This analysis reviews the generated shell scripts and Makefile against software security best practices for Public Key Infrastructure (PKI).
 
-1. Key Handling Weaknesses
+## 1. Key Handling Weaknesses
 Unencrypted Private Keys: The scripts generate private keys (ca.key, server.key) without passphrases (-genkey without encryption flags). If the storage media is compromised, the keys are immediately usable by an attacker.
 
 Insecure Key Storage: The Root CA private key is stored in the same directory (certs/) as public certificates and the server key. There is no separation of duties or physical isolation (e.g., offline root CA) to protect the root of trust.
 
 Destructive Cleanup: The Makefile's clean target (rm -rf certs) destroys the Root CA key. In a real lifecycle, the Root CA key is the most critical asset and must be preserved, not wiped during a standard build clean.
 
-2. Certificate Content & Standards
+## 2. Certificate Content & Standards
 Missing Subject Alternative Name (SAN): The implementation relies exclusively on the Common Name (CN) field for identity (-subj "/CN=..."). Modern security standards (e.g., CA/Browser Forum Baseline Requirements) and clients (e.g., Chrome, major TLS libraries) require SANs and often ignore the CN, causing validation failures.
 
 Missing Key Usage Extensions: The server certificate lacks KeyUsage and ExtendedKeyUsage extensions. This violates the principle of least privilege, as the server certificate effectively has unrestricted permissions (e.g., it could potentially be used to sign other certificates or sign code).
 
 Implicit Basic Constraints: The server certificate issuance does not explicitly enforce BasicConstraints: CA:FALSE. While most verifiers assume end-entity status by default, explicit constraints prevent the certificate from being misused as a subordinate CA.
 
-3. Reliance on OpenSSL Defaults
+## 3. Reliance on OpenSSL Defaults
 System-Dependent Configuration: The scripts do not specify a configuration file (-config), relying instead on the host system's default openssl.cnf. This makes the output non-reproducible across different environments and risks inheriting insecure legacy defaults (e.g., string types, policy constraints).
 
 Serial Number Management: The -CAcreateserial flag uses a simple file-based serial number counter. In high-concurrency or distributed environments, this can lead to race conditions or predictable serial numbers, potentially allowing distinct certificates to share a serial number (a revocation hazard).
 
-4. Automation & Operational Risks
+## 4. Automation & Operational Risks
 Blind Signing: The create_cert.sh script automatically signs any CSR presented to it without validation. There are no checks on the CSR's requested subject, key strength, or attributes. An attacker could submit a CSR for a high-value domain (e.g., google.com) or a weak key, and the CA would issue a valid certificate for it.
 
 Long-Lived Validity: The Root CA is valid for 10 years and the server certificate for 2 years. While acceptable for internal labs, modern public trust standards restrict leaf certificates to roughly 1 year (398 days) to minimize the window of exposure for compromised keys.
 
 Lack of Revocation Infrastructure: The implementation generates certificates but provides no mechanism to generate a Certificate Revocation List (CRL) or OCSP responder. Once issued, a compromised certificate cannot be untrusted until it expires.
-
-Next Step
-Would you like me to generate a openssl.cnf configuration file that resolves the "Missing Subject Alternative Name" and "Key Usage" issues?
